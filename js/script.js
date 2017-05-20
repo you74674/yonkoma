@@ -581,19 +581,23 @@ function hideform() {
 			//讀取未展開的回覆
 			if(postNode[resto]===undefined){
 				var op = parseInt( $(post).siblings(':first').attr('data-no') );				
-				$.getJSON('pixmicat.php?mode=module&load=mod_ajax&action=thread&html=true&op=' + op + '&no=' + resto, function(json){
+				$.getJSON('pixmicat.php?mode=module&load=mod_ajax&action=post&html=true&no=' + resto, function(json){
 					postNode[resto] = $(json['html'])[0];
-					
 					onPostLoaded(resto);
-				    onThreadUpdated(op);
-
+					
+					$popup = $('<div>');
+					cnt += _addPopupPost($popup, resto);
+					if(cnt) {
+						window.setTimeout(function(){popupView.show($popup[0], e.clientX, e.clientY, that);} ,10);
+					}
 				});
 			}
-			
-			$popup = $('<div>');
-			cnt += _addPopupPost($popup, resto);
-			if(cnt) {
-				window.setTimeout(function(){popupView.show($popup[0], e.clientX, e.clientY, that);} ,10);
+			else{
+				$popup = $('<div>');
+				cnt += _addPopupPost($popup, resto);
+				if(cnt) {
+					window.setTimeout(function(){popupView.show($popup[0], e.clientX, e.clientY, that);} ,10);
+				}
 			}
 
 		});
