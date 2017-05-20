@@ -257,6 +257,35 @@ class mod_ajax extends ModuleHelper{
 		$this->output_json($re);
 	}
 
+	function dumpPost($op, $no, $html=false)
+	{
+		global $PIO;
+		$op = intval($op);
+		if( !$PIO->isThread($op) ) $this->output_error('thread doesnt exist');
+		$tree = $PIO->fetchPostList($op);
+		
+		$cnt = 0;
+		$posts = $PIO->fetchPosts( $tree );
+		$exist_no = false;
+		foreach($posts as $post)
+		{
+			if(intval($post['no']) == $no)
+			{
+				$ar = $this->filterPost($post);
+				if($html) $ar['html'] = $this->_dumpHtml($post, $tree, $cnt==0);
+				
+				$re=$ar;
+				$exist_no = true;
+				break;
+			}
+			$cnt++;
+		}
+		if(!$exist_no)
+			$this->output_error('invalid no.');
+		else
+			$this->output_json($re);
+	}
+	
 	/* 模組獨立頁面 */
 	function ModulePage(){
 		$valid_action = array('threads', 'posts', 'thread');
@@ -299,7 +328,10 @@ class mod_ajax extends ModuleHelper{
 		{
 			if( isset($_GET['op']) && intval($_GET['op']) )
 			{
-				$this->dumpThread( intval($_GET['op']), $html );
+				if( isset($_GET['no']) && intval($_GET['no']) )
+					$this->dumpPost(intval($_GET['op']), intval($_GET['no']), $html);
+				else
+					$this->dumpThread( intval($_GET['op']), $html );
 			}
 			else
 			{
